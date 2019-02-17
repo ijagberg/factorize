@@ -21,12 +21,7 @@ fn main() {
         for factor in &factors {
             product *= factor;
         }
-        println!(
-            "{:?}, took {}.{}s",
-            factors,
-            timer.elapsed().as_secs(),
-            timer.elapsed().subsec_millis()
-        );
+        println!("{} => {:?}, took {:?}", number, factors, timer.elapsed());
         assert_eq!(number, product);
     }
 }
