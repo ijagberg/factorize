@@ -5,4 +5,4 @@ authors = ["Isak Jägberg <ijagberg@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-rand = "*"
+rand = "0.6.5"
