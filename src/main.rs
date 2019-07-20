@@ -16,7 +16,7 @@ fn main() {
 
     for number in numbers {
         let timer = time::Instant::now();
-        let factors = math::trial_division(&number);
+        let factors = math::trial_division(number);
         let mut product: u128 = 1;
         for factor in &factors {
             product *= factor;
