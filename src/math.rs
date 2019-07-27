@@ -4,15 +4,17 @@ pub fn trial_division(mut n: u128) -> Vec<u128> {
         return factors;
     }
     
-    let mut candidates = std::iter::once(2).chain((3..).step_by(2));
+    let candidates = std::iter::once(2).chain((3..).step_by(2));
     
-    while n > 1 {
-        let candidate = candidates.next().unwrap();
+    for candidate in candidates {
+        if n <= 1 {
+            break;
+        }
         while n % candidate == 0 {
             factors.push(candidate);
             n /= candidate;
         }
     }
-    
+
     factors
 }
