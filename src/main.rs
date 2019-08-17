@@ -1,6 +1,7 @@
 use std::env;
 use std::time;
-mod math;
+pub mod algorithms;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let mut numbers: Vec<u128> = Vec::new();
@@ -16,7 +17,7 @@ fn main() {
 
     for number in numbers {
         let timer = time::Instant::now();
-        let factors = math::trial_division(number);
+        let factors = algorithms::trial_division(number);
         let mut product: u128 = 1;
         for factor in &factors {
             product *= factor;
