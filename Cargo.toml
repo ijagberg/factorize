@@ -5,6 +5,7 @@ authors = ["Isak Jägberg <ijagberg@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-rand = "0.6.5"
+rand = "0.7.2"
 num-bigint = "0.2.2"
 structopt = "0.3.3"
+mod_exp = "1.0.1"
