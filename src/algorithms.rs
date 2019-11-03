@@ -29,6 +29,46 @@ pub fn trial_division(mut n: u128) -> Vec<u128> {
     factors
 }
 
+pub fn pollards_rho(mut n: u128) -> Vec<u128> {
+    let mut factors = Vec::new();
+
+    while n % 2 == 0 {
+        factors.push(2);
+        n /= 2;
+    }
+
+    let g = |x: u128, n: u128| ((x * x) + 1) % n;
+    while n != 1 {
+        let mut x = 2;
+        let mut y = 2;
+        let mut d = 1;
+
+        while d == 1 {
+            x = g(x, n);
+            y = g(g(y, n), n);
+            d = gcd((x as i128 - y as i128).abs() as u128, n);
+            if d == n {
+                panic!("pollards rho failed for n = {}", n);
+            } else {
+                dbg!(&d);
+                factors.push(d);
+                n /= d;
+            }
+        }
+    }
+    factors
+}
+
+fn gcd(mut a: u128, mut b: u128) -> u128 {
+    let mut remainder = 0;
+    while b != 0 {
+        remainder = a % b;
+        a = b;
+        b = remainder;
+    }
+    a
+}
+
 fn miller_rabin(n: u128, k: u32) -> MillerRabinResult {
     if n % 2 == 0 || n <= 3 {
         return MillerRabinResult::Composite;
@@ -71,6 +111,13 @@ fn factor_out_twos(mut n: u128) -> (u128, u128) {
     }
 
     (s, n)
+}
+
+#[test]
+fn test_pollards_rho() {
+    let mut factors = pollards_rho(20);
+    factors.sort();
+    assert_eq!(factors, vec![2, 2, 5]);
 }
 
 #[test]
