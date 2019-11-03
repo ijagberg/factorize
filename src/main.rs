@@ -3,7 +3,7 @@ use structopt::StructOpt;
 pub mod algorithms;
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "basic")]
+#[structopt(name = "factorize")]
 struct Options {
     numbers: Vec<u128>,
 }
