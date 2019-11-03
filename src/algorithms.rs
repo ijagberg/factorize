@@ -124,9 +124,21 @@ fn factor_out_twos(mut n: u128) -> (u128, u128) {
 
 #[test]
 fn test_pollards_rho() {
-    let mut factors = brents_rho(20);
-    factors.sort();
-    assert_eq!(factors, vec![2, 2, 5]);
+    let numbers: Vec<u128> = vec![
+        1,
+        2,
+        3,
+        10,
+        100,
+        150,
+        50000,
+        1_234_567_890,
+        948_347_928_371_874,
+    ];
+    for number in numbers {
+        let factors = brents_rho(number);
+        assert_eq!(number, factors.iter().product());
+    }
 }
 
 #[test]
