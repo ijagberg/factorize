@@ -22,7 +22,7 @@ struct Options {
 #[derive(Debug)]
 enum Alg {
     TrialDivision,
-    PollardsRho,
+    BrentsRho,
 }
 
 #[derive(Debug)]
@@ -46,9 +46,7 @@ impl FromStr for Alg {
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match &*s.to_uppercase() {
             "TRIALDIVISION" | "TRIAL DIVISION" | "TRIAL_DIVISION" => Ok(Alg::TrialDivision),
-            "POLLARDSRHO" | "POLLARDS RHO" | "POLLARDS_RHO" | "POLLARD'S RHO" => {
-                Ok(Alg::PollardsRho)
-            }
+            "BRENTSRHO" | "BRENTS RHO" | "BRENTS_RHO" | "BRENTS'S RHO" => Ok(Alg::BrentsRho),
             _ => std::result::Result::Err(ParseError::UnknownAlg(s.into())),
         }
     }
@@ -61,7 +59,7 @@ fn main() {
         let timer = time::Instant::now();
         let factors = match opts.alg {
             Alg::TrialDivision => algorithms::trial_division(number),
-            Alg::PollardsRho => unimplemented!("pollard's rho is not implemented yet"),
+            Alg::BrentsRho => algorithms::brents_rho(number),
         };
         println!("{} => {:?}, took {:?}", number, factors, timer.elapsed());
         if opts.assert {

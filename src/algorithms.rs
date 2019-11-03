@@ -29,7 +29,7 @@ pub fn trial_division(mut n: u128) -> Vec<u128> {
     factors
 }
 
-pub fn pollards_rho(mut n: u128) -> Vec<u128> {
+pub fn brents_rho(mut n: u128) -> Vec<u128> {
     let mut factors = Vec::new();
 
     while n % 2 == 0 {
@@ -37,26 +37,41 @@ pub fn pollards_rho(mut n: u128) -> Vec<u128> {
         n /= 2;
     }
 
-    let g = |x: u128, n: u128| ((x * x) + 1) % n;
     while n != 1 {
-        let mut x = 2;
-        let mut y = 2;
-        let mut d = 1;
+        if let MillerRabinResult::ProbablyPrime = miller_rabin(n, 40) {
+            factors.push(n);
+            break;
+        }
 
-        while d == 1 {
-            x = g(x, n);
-            y = g(g(y, n), n);
-            d = gcd((x as i128 - y as i128).abs() as u128, n);
-            if d == n {
-                panic!("pollards rho failed for n = {}", n);
-            } else {
-                dbg!(&d);
-                factors.push(d);
-                n /= d;
+        // try Brent's rho until it succeeds
+        for offset in 1.. {
+            if let Ok(factor) = brents_rho_single(n, offset) {
+                factors.push(factor);
+                n /= factor;
+                break;
             }
         }
     }
+    factors.sort();
     factors
+}
+
+fn brents_rho_single(n: u128, offset: u32) -> Result<u128, ()> {
+    let mut x = 2;
+    let mut y = 2;
+    let mut d = 1;
+
+    let g = |x: u128, n: u128| ((x * x) + u128::from(offset)) % n;
+    while d == 1 {
+        x = g(x, n);
+        y = g(g(y, n), n);
+        d = gcd((x as i128 - y as i128).abs() as u128, n);
+    }
+    if d == n {
+        Err(())
+    } else {
+        Ok(d)
+    }
 }
 
 fn gcd(mut a: u128, mut b: u128) -> u128 {
@@ -75,20 +90,15 @@ fn miller_rabin(n: u128, k: u32) -> MillerRabinResult {
     }
 
     let mut rng = rand::thread_rng();
-    let (r, d) = factor_out_twos(n - 1);
-    dbg!((r, d));
+    let (exponent, scalar) = factor_out_twos(n - 1);
     'witness: for _ in 0..k {
         let random_witness: u128 = rng.gen_range(2, n - 1);
-        //let random_witness = 174;
-        dbg!(&random_witness);
-        let mut x = mod_exp(random_witness, d, n);
-        dbg!(&x);
+        let mut x = mod_exp(random_witness, scalar, n);
         if x == 1 || x == n - 1 {
             continue 'witness;
         } else {
-            for _ in 0..r - 1 {
+            for _ in 0..exponent - 1 {
                 x = mod_exp(x, 2, n);
-                dbg!(&x);
                 if x == n - 1 {
                     continue 'witness;
                 }
@@ -115,7 +125,7 @@ fn factor_out_twos(mut n: u128) -> (u128, u128) {
 
 #[test]
 fn test_pollards_rho() {
-    let mut factors = pollards_rho(20);
+    let mut factors = brents_rho(20);
     factors.sort();
     assert_eq!(factors, vec![2, 2, 5]);
 }
