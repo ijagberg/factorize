@@ -56,50 +56,49 @@ pub fn brents_rho(mut n: u128) -> Vec<u128> {
     factors
 }
 
-fn brents_rho_single(n: u128, offset: u32) -> Result<u128, ()> {
-    let mut x = 2;
-    let mut y = 2;
-    let mut d = 1;
+fn brents_rho_single(number: u128, offset: u32) -> Result<u128, ()> {
+    let mut x_cycle = 2;
+    let mut y_cycle = 2;
+    let mut possible_factor = 1;
 
     let g = |x: u128, n: u128| ((x * x) + u128::from(offset)) % n;
-    while d == 1 {
-        x = g(x, n);
-        y = g(g(y, n), n);
-        d = gcd((x as i128 - y as i128).abs() as u128, n);
+    while possible_factor == 1 {
+        x_cycle = g(x_cycle, number);
+        y_cycle = g(g(y_cycle, number), number);
+        possible_factor = gcd((x_cycle as i128 - y_cycle as i128).abs() as u128, number);
     }
-    if d == n {
+    if possible_factor == number {
         Err(())
     } else {
-        Ok(d)
+        Ok(possible_factor)
     }
 }
 
 fn gcd(mut a: u128, mut b: u128) -> u128 {
-    let mut remainder = 0;
     while b != 0 {
-        remainder = a % b;
+        let remainder = a % b;
         a = b;
         b = remainder;
     }
     a
 }
 
-fn miller_rabin(n: u128, k: u32) -> MillerRabinResult {
-    if n % 2 == 0 || n <= 3 {
+fn miller_rabin(number: u128, iterations: u32) -> MillerRabinResult {
+    if number % 2 == 0 || number <= 3 {
         return MillerRabinResult::Composite;
     }
 
     let mut rng = rand::thread_rng();
-    let (exponent, scalar) = factor_out_twos(n - 1);
-    'witness: for _ in 0..k {
-        let random_witness: u128 = rng.gen_range(2, n - 1);
-        let mut x = mod_exp(random_witness, scalar, n);
-        if x == 1 || x == n - 1 {
+    let (exponent, scalar) = factor_out_twos(number - 1);
+    'witness: for _ in 0..iterations {
+        let random_witness: u128 = rng.gen_range(2, number - 1);
+        let mut x = mod_exp(random_witness, scalar, number);
+        if x == 1 || x == number - 1 {
             continue 'witness;
         } else {
             for _ in 0..exponent - 1 {
-                x = mod_exp(x, 2, n);
-                if x == n - 1 {
+                x = mod_exp(x, 2, number);
+                if x == number - 1 {
                     continue 'witness;
                 }
             }
