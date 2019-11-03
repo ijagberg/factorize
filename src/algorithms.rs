@@ -4,7 +4,9 @@ use std::collections::VecDeque;
 
 #[derive(PartialEq, Debug)]
 enum MillerRabinResult {
+    /// Definitely a composite number
     Composite,
+    /// Probably a prime number
     ProbablyPrime,
 }
 
