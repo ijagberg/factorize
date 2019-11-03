@@ -1,5 +1,6 @@
 use mod_exp::mod_exp;
 use rand::Rng;
+use std::collections::VecDeque;
 
 #[derive(PartialEq, Debug)]
 enum MillerRabinResult {
@@ -37,20 +38,30 @@ pub fn brents_rho(mut n: u128) -> Vec<u128> {
         n /= 2;
     }
 
-    while n != 1 {
-        if let MillerRabinResult::ProbablyPrime = miller_rabin(n, 40) {
-            factors.push(n);
-            break;
+    let mut to_factorize = VecDeque::new();
+    to_factorize.push_back(n);
+    'factorize: while let Some(number) = to_factorize.pop_front() {
+        if let MillerRabinResult::ProbablyPrime = miller_rabin(number, 40) {
+            factors.push(number);
+            continue;
         }
 
-        // try Brent's rho until it succeeds
-        for offset in 1.. {
-            if let Ok(factor) = brents_rho_single(n, offset) {
-                factors.push(factor);
-                n /= factor;
-                break;
+        // try Brent's rho until it succeeds (panic if this takes more than 100 iterations)
+        for offset in 1..100 {
+            if let Ok(factor) = brents_rho_single(number, offset) {
+                // Brent's rho returned a factor of n, but it might not be prime
+                // so add it and its twin to the deque
+                to_factorize.push_back(factor);
+                to_factorize.push_back(number / factor);
+                continue 'factorize;
+            } else {
+                eprintln!(
+                    "Brent's rho algorithm failed for number={}, attempting again with offset={}",
+                    number, offset + 1
+                );
             }
         }
+        panic!("Brent's rho took more than 100 iterations");
     }
     factors.sort();
     factors
