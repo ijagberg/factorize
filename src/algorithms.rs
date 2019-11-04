@@ -97,6 +97,9 @@ fn gcd(mut a: u128, mut b: u128) -> u128 {
 }
 
 fn miller_rabin(number: u128, iterations: u32) -> MillerRabinResult {
+    if number == 2 || number == 3 {
+        return MillerRabinResult::ProbablyPrime;
+    }
     if number % 2 == 0 || number <= 3 {
         return MillerRabinResult::Composite;
     }
