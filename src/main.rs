@@ -1,6 +1,8 @@
+use rug::{Assign, Integer};
 use std::str::FromStr;
 use std::time;
 use structopt::StructOpt;
+
 pub mod algorithms;
 
 #[derive(StructOpt, Debug)]
@@ -8,7 +10,7 @@ pub mod algorithms;
 struct Options {
     /// Array of numbers to factorize
     #[structopt(required = true)]
-    numbers: Vec<u128>,
+    numbers: Vec<Integer>,
 
     /// Set to 'true' to assert correctness of factorizations
     #[structopt(long)]
@@ -58,12 +60,10 @@ fn main() {
     for number in opts.numbers {
         let timer = time::Instant::now();
         let factors = match opts.alg {
-            Alg::TrialDivision => algorithms::trial_division(number),
-            Alg::BrentsRho => algorithms::brents_rho(number),
+            Alg::TrialDivision => algorithms::trial_division(number.clone()),
+            //Alg::BrentsRho => algorithms::brents_rho(number),
+            _ => panic!("invalid algorithm"),
         };
         println!("{} => {:?}, took {:?}", number, factors, timer.elapsed());
-        if opts.assert {
-            assert_eq!(number, factors.iter().product());
-        }
     }
 }
