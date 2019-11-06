@@ -1,6 +1,5 @@
 use mod_exp::mod_exp;
-use rand::Rng;
-use rug::{Assign, Integer};
+use rug::{rand::RandState, Assign, Integer};
 use std::collections::VecDeque;
 
 #[derive(PartialEq, Debug)]
@@ -134,24 +133,33 @@ fn miller_rabin(number: &Integer, iterations: u32) -> MillerRabinResult {
         return MillerRabinResult::Composite;
     }
 
+    let one = Integer::from(1);
+    let two = Integer::from(2);
     let mut number_minus_one_buffer = Integer::new();
-    let mut rng = rand::thread_rng();
-    let (exponent, scalar) = factor_out_twos(number - 1);
+    number_minus_one_buffer.assign(number - 1);
+    let mut rand = RandState::new();
+    let mut base_buffer = Integer::new();
+    let (exponent, scalar) = factor_out_twos(number_minus_one_buffer);
     'witness: for _ in 0..iterations {
-        let random_witness: Integer = rng.gen_range(2, number - 1);
-        let mut x = mod_exp(random_witness, scalar, number);
-        number_minus_one_buffer.assign(number - 1);
-        if x == 1 || x == number_minus_one_buffer {
+        let mut random_witness: Integer = number_minus_one_buffer.random_below(&mut rand);
+        random_witness.assign(random_witness.pow_mod(&two, &number).unwrap()); 
+
+        if random_witness == 1 || random_witness == number_minus_one_buffer {
             continue 'witness;
         } else {
-            for _ in 0..exponent - 1 {
-                x = mod_exp(x, 2, number);
-                number_minus_one_buffer.assign(number - 1);
-                if x == number_minus_one_buffer {
+            let mut loop_count = Integer::from(0);
+            let mut exp_minus_one_buffer = Integer::new();
+            exp_minus_one_buffer.assign(exponent - one);
+            loop {
+                if loop_count < exp_minus_one_buffer {
+                    return MillerRabinResult::Composite;
+                }
+
+                random_witness.assign(random_witness.pow_mod(&two, &number).unwrap());
+                if random_witness == number_minus_one_buffer {
                     continue 'witness;
                 }
             }
-            return MillerRabinResult::Composite;
         }
     }
 
