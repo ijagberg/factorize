@@ -1,4 +1,4 @@
-use mod_exp::mod_exp;
+#[allow(unused_imports)]
 use rug::{rand::RandState, Assign, Integer};
 use std::collections::VecDeque;
 
@@ -45,16 +45,17 @@ pub fn brents_rho(mut n: Integer) -> Vec<Integer> {
     let mut remainder_buffer = Integer::new();
     loop {
         remainder_buffer.assign(&n % 2);
-        if remainder_buffer == 0 {
+        if remainder_buffer != 0 {
             break;
         }
+        factors.push(Integer::from(2));
         n /= 2;
     }
 
     let mut to_factorize = VecDeque::new();
     to_factorize.push_back(n);
     'factorize: while let Some(number) = to_factorize.pop_front() {
-        if n == 1 {
+        if number == 1 {
             return factors;
         }
         if let MillerRabinResult::ProbablyPrime = miller_rabin(&number, 40) {
@@ -67,8 +68,9 @@ pub fn brents_rho(mut n: Integer) -> Vec<Integer> {
             if let Ok(factor) = brents_rho_single(&number, offset) {
                 // Brent's rho returned a factor of n, but it might not be prime
                 // so add it and its twin to the deque
+                let twin = Integer::from(&number / &factor);
                 to_factorize.push_back(factor);
-                to_factorize.push_back(number / factor);
+                to_factorize.push_back(twin);
                 continue 'factorize;
             } else {
                 eprintln!(
@@ -102,7 +104,7 @@ fn brents_rho_single(number: &Integer, offset: u16) -> Result<Integer, ()> {
         y_cycle.assign(g(&g(&y_cycle, number), number));
 
         abs_diff_buffer.assign(&x_cycle - &y_cycle);
-        abs_diff_buffer.assign(abs_diff_buffer.abs());
+        abs_diff_buffer.assign(abs_diff_buffer.clone().abs());
         possible_factor.assign(gcd(abs_diff_buffer.clone(), number.clone()));
     }
     if &possible_factor == number {
@@ -116,9 +118,9 @@ fn gcd(mut a: Integer, mut b: Integer) -> Integer {
     let mut remainder_buffer = Integer::new();
 
     while b != 0 {
-        remainder_buffer.assign(a % b);;
-        a.assign(b);
-        b.assign(remainder_buffer);
+        remainder_buffer.assign(&a % &b);
+        a.assign(&b);
+        b.assign(&remainder_buffer);
     }
     a
 }
@@ -127,38 +129,37 @@ fn miller_rabin(number: &Integer, iterations: u32) -> MillerRabinResult {
     if number == &2 || number == &3 {
         return MillerRabinResult::ProbablyPrime;
     }
-    let mut remainder_buffer = Integer::new();
-    remainder_buffer.assign(number % 2);
-    if remainder_buffer == 0 || number <= &3 {
+
+    let remainder_buffer = Integer::from(number % Integer::from(2));
+    if remainder_buffer == 0 || number < &3 {
         return MillerRabinResult::Composite;
     }
 
-    let one = Integer::from(1);
     let two = Integer::from(2);
-    let mut number_minus_one_buffer = Integer::new();
-    number_minus_one_buffer.assign(number - 1);
+    let number_minus_one = Integer::from(number - 1);
+    let number_minus_three = Integer::from(&number_minus_one - &two);
     let mut rand = RandState::new();
-    let mut base_buffer = Integer::new();
-    let (exponent, scalar) = factor_out_twos(number_minus_one_buffer);
+    let (exponent, scalar) = factor_out_twos(number_minus_one.clone());
     'witness: for _ in 0..iterations {
-        let mut random_witness: Integer = number_minus_one_buffer.random_below(&mut rand);
-        random_witness.assign(random_witness.pow_mod(&two, &number).unwrap()); 
+        let mut random_witness =
+            Integer::from(&Integer::from(number_minus_three.random_below_ref(&mut rand)) + &two);
+        random_witness.assign(random_witness.clone().pow_mod(&scalar, &number).unwrap());
 
-        if random_witness == 1 || random_witness == number_minus_one_buffer {
+        if random_witness == 1 || random_witness == number_minus_one {
             continue 'witness;
         } else {
             let mut loop_count = Integer::from(0);
-            let mut exp_minus_one_buffer = Integer::new();
-            exp_minus_one_buffer.assign(exponent - one);
+            let exp_minus_one = Integer::from(&exponent - 1);
             loop {
-                if loop_count < exp_minus_one_buffer {
+                if loop_count >= exp_minus_one {
                     return MillerRabinResult::Composite;
                 }
 
-                random_witness.assign(random_witness.pow_mod(&two, &number).unwrap());
-                if random_witness == number_minus_one_buffer {
+                random_witness.assign(random_witness.clone().pow_mod(&two, &number).unwrap());
+                if random_witness == number_minus_one {
                     continue 'witness;
                 }
+                loop_count += 1;
             }
         }
     }
@@ -174,13 +175,17 @@ fn factor_out_twos(mut n: Integer) -> (Integer, Integer) {
     let mut remainder_buffer = Integer::new();
 
     loop {
-        remainder_buffer.assign(n % 2);
+        remainder_buffer.assign(&n % 2);
         if remainder_buffer == 0 {
             break;
         }
     }
 
-    while n % 2 == 0 {
+    loop {
+        remainder_buffer.assign(&n % 2);
+        if remainder_buffer != 0 {
+            break;
+        }
         s += 1;
         n /= 2;
     }
@@ -192,74 +197,48 @@ fn factor_out_twos(mut n: Integer) -> (Integer, Integer) {
 mod tests {
     use super::*;
 
-    const LOW_PRIMES: [u128; 11] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31];
+    const LOW_PRIMES: [u128; 10] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
+    const LOW_COMPOSITES: [u128; 10] = [1, 4, 6, 8, 9, 10, 12, 14, 15, 16];
 
     #[test]
-    fn test_pollards_rho() {
-        let numbers: Vec<u128> = vec![
-            1,
-            2,
-            3,
-            10,
-            100,
-            150,
-            50000,
-            1_234_567_890,
-            948_347_928_371_874,
-        ];
-        for number in numbers {
-            let factors = brents_rho(number);
-            assert_eq!(number, factors.iter().product::<u128>());
+    fn miller_rabin_accurate_for_low_primes() {
+        for prime in LOW_PRIMES.iter().map(|&n| Integer::from(n)) {
+            assert_eq!(
+                (&prime, miller_rabin(&prime.clone(), 40)),
+                (&prime, MillerRabinResult::ProbablyPrime)
+            );
         }
     }
 
     #[test]
-    fn test_miller_rabin() {
-        assert_eq!(miller_rabin(13, 40), MillerRabinResult::ProbablyPrime);
-        assert_eq!(miller_rabin(221, 40), MillerRabinResult::Composite);
-    }
-
-    #[test]
-    fn test_factor_out_twos_1() {
-        assert_eq!(factor_out_twos(221 - 1), (2, 55));
-        assert_eq!(factor_out_twos(13 - 1), (2, 3));
-    }
-
-    #[test]
-    fn trial_div_should_factorize_correctly() {
-        let numbers: Vec<Integer> = vec![
-            1_u128,
-            2_u128,
-            3_u128,
-            10_u128,
-            100_u128,
-            150_u128,
-            50000_u128,
-            1_234_567_890_u128,
-            948_347_928_371_874_u128,
-        ]
-        .iter()
-        .map(|&n| Integer::from(n))
-        .collect();
-        for number in numbers {
-            let factors = trial_division(number.clone());
-            assert_eq!(number, factors.iter().product::<Integer>());
+    fn miller_rabin_accurate_for_low_composites() {
+        for composite in LOW_COMPOSITES.iter().map(|&n| Integer::from(n)) {
+            assert_eq!(
+                (&composite, miller_rabin(&composite.clone(), 40)),
+                (&composite, MillerRabinResult::Composite)
+            );
         }
     }
 
     #[test]
-    fn trial_division_low_primes() {
-        for number in LOW_PRIMES.iter().map(|&low_prime| Integer::from(low_prime)) {
-            let factors = trial_division(number.clone());
-            assert_eq!(factors.len(), 1);
+    fn trial_division_factors_low_primes_correctly() {
+        for prime in LOW_PRIMES.iter().map(|&n| Integer::from(n)) {
+            assert_eq!((&prime, trial_division(prime.clone()).len()), (&prime, 1));
         }
     }
 
     #[test]
-    fn brents_rho_low_primes() {
-        for number in &LOW_PRIMES {
-            let factors = brents_rho(*number);
-            assert_eq!(factors.len(), 1);
+    fn brents_rho_factors_low_primes_correctly() {
+        for prime in LOW_PRIMES.iter().map(|&n| Integer::from(n)) {
+            assert_eq!((&prime, brents_rho(prime.clone()).len()), (&prime, 1));
         }
+    }
+
+    #[test]
+    fn brents_rho_low_composites() {
+        assert_eq!(brents_rho(Integer::from(12)), vec![2, 2, 3]);
+        assert_eq!(brents_rho(Integer::from(15)), vec![3, 5]);
+        assert_eq!(brents_rho(Integer::from(40)), vec![2, 2, 2, 5]);
+        assert_eq!(brents_rho(Integer::from(42)), vec![2, 3, 7]);
     }
 }

@@ -61,9 +61,11 @@ fn main() {
         let timer = time::Instant::now();
         let factors = match opts.alg {
             Alg::TrialDivision => algorithms::trial_division(number.clone()),
-            //Alg::BrentsRho => algorithms::brents_rho(number),
-            _ => panic!("invalid algorithm"),
+            Alg::BrentsRho => algorithms::brents_rho(number.clone()),
         };
         println!("{} => {:?}, took {:?}", number, factors, timer.elapsed());
+        if opts.assert {
+            assert_eq!(factors.iter().product::<Integer>(), number);
+        }
     }
 }
