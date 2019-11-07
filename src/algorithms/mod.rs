@@ -118,7 +118,6 @@ impl Factorize for BrentsRho {
             }
             panic!("Brent's rho took more than 100 iterations for {}", &number);
         }
-        factors.sort();
         factors
     }
 }

@@ -26,10 +26,11 @@ fn main() {
 
     for number in opts.numbers {
         let timer = time::Instant::now();
-        let factors = match opts.alg {
+        let mut factors = match opts.alg {
             Alg::TrialDivision => algorithms::TrialDivision::factor(number.clone()),
             Alg::BrentsRho => algorithms::BrentsRho::factor(number.clone()),
         };
+        factors.sort();
         println!("{} => {:?}, took {:?}", number, factors, timer.elapsed());
         if opts.assert {
             assert_eq!(factors.iter().product::<Integer>(), number);
