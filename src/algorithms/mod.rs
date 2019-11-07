@@ -2,9 +2,11 @@ use rug::{Assign, Integer};
 use std::str::FromStr;
 
 pub use brents_rho::BrentsRho;
+pub use fermat::Fermat;
 pub use trial_division::TrialDivision;
 
 mod brents_rho;
+mod fermat;
 mod primality;
 mod trial_division;
 
@@ -16,6 +18,7 @@ pub trait Factorize {
 pub enum Alg {
     TrialDivision,
     BrentsRho,
+    Fermat
 }
 
 #[derive(Debug)]
@@ -40,6 +43,7 @@ impl FromStr for Alg {
         match &*s.to_uppercase() {
             "TRIALDIVISION" | "TRIAL DIVISION" | "TRIAL_DIVISION" => Ok(Alg::TrialDivision),
             "BRENTSRHO" | "BRENTS RHO" | "BRENTS_RHO" | "BRENTS'S RHO" => Ok(Alg::BrentsRho),
+            "FERMAT" | "FERMATS" | "FERMAT'S" => Ok(Alg::Fermat),
             _ => std::result::Result::Err(ParseAlgError::UnknownAlg(s.into())),
         }
     }
@@ -110,5 +114,20 @@ mod tests {
         assert_eq!(BrentsRho::factor(Integer::from(15)), vec![3, 5]);
         assert_eq!(BrentsRho::factor(Integer::from(40)), vec![2, 2, 2, 5]);
         assert_eq!(BrentsRho::factor(Integer::from(42)), vec![2, 3, 7]);
+    }
+
+    #[test]
+    fn fermat_low_primes() {
+        for prime in LOW_PRIMES.iter().map(|&n| Integer::from(n)) {
+            assert_eq!((&prime, Fermat::factor(prime.clone()).len()), (&prime, 1));
+        }
+    }
+
+    #[test]
+    fn fermat_low_composites() {
+        assert_eq!(Fermat::factor(Integer::from(12)), vec![2, 2, 3]);
+        assert_eq!(Fermat::factor(Integer::from(15)), vec![3, 5]);
+        assert_eq!(Fermat::factor(Integer::from(40)), vec![2, 2, 2, 5]);
+        assert_eq!(Fermat::factor(Integer::from(42)), vec![2, 3, 7]);
     }
 }

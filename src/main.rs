@@ -30,6 +30,7 @@ fn main() {
         let mut factors = match opts.alg {
             Alg::TrialDivision => algorithms::TrialDivision::factor(number.clone()),
             Alg::BrentsRho => algorithms::BrentsRho::factor(number.clone()),
+            Alg::Fermat => algorithms::Fermat::factor(number.clone()),
         };
         factors.sort();
         println!("{} => {:?}, took {:?}", number, factors, timer.elapsed());
