@@ -20,7 +20,6 @@ impl Factorize for TrialDivision {
     fn factor(mut number: Integer) -> Vec<Integer> {
         use std::iter;
         let mut factors = Vec::new();
-        let one = Integer::from(1);
         if number == 0 {
             return factors;
         }
@@ -29,7 +28,7 @@ impl Factorize for TrialDivision {
 
         let mut remainder_buffer = Integer::new();
         for candidate in candidates {
-            if &number <= &one {
+            if number <= 1 {
                 break;
             } else {
                 loop {
