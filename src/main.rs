@@ -1,4 +1,5 @@
-use algorithms::{Alg, Factorize};
+use algorithms::Alg;
+use algorithms::Factorize;
 use rug::Integer;
 use std::time;
 use structopt::StructOpt;
