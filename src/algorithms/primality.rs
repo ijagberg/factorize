@@ -13,8 +13,7 @@ pub fn miller_rabin(number: &Integer, iterations: u32) -> MillerRabinResult {
         return MillerRabinResult::ProbablyPrime;
     }
 
-    let remainder_buffer = number % Integer::from(2);
-    if remainder_buffer == 0 || *number < 3 {
+    if number.is_divisible_u(2) || *number < 3 {
         return MillerRabinResult::Composite;
     }
 

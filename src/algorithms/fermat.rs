@@ -23,12 +23,7 @@ impl Factorize for Fermat {
         let mut to_factorize = VecDeque::new();
 
         // Remove all twos first
-        let mut remainder = Integer::new();
-        loop {
-            remainder.assign(&number % 2);
-            if remainder != 0 {
-                break;
-            }
+        while number.is_divisible_u(2) {
             factors.push(Integer::from(2));
             number /= 2;
         }

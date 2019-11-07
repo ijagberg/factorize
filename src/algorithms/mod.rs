@@ -18,7 +18,7 @@ pub trait Factorize {
 pub enum Alg {
     TrialDivision,
     BrentsRho,
-    Fermat
+    Fermat,
 }
 
 #[derive(Debug)]
@@ -89,7 +89,7 @@ mod tests {
     }
 
     #[test]
-    fn trial_division_factors_low_primes_correctly() {
+    fn trial_division_low_primes() {
         for prime in LOW_PRIMES.iter().map(|&n| Integer::from(n)) {
             assert_eq!(
                 (&prime, TrialDivision::factor(prime.clone()).len()),
@@ -99,7 +99,7 @@ mod tests {
     }
 
     #[test]
-    fn brents_rho_factors_low_primes_correctly() {
+    fn brents_rho_low_primes() {
         for prime in LOW_PRIMES.iter().map(|&n| Integer::from(n)) {
             assert_eq!(
                 (&prime, BrentsRho::factor(prime.clone()).len()),

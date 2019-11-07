@@ -39,12 +39,7 @@ impl Factorize for BrentsRho {
     fn factor(mut n: Integer) -> Vec<Integer> {
         let mut factors = Vec::new();
 
-        let mut remainder_buffer = Integer::new();
-        loop {
-            remainder_buffer.assign(&n % 2);
-            if remainder_buffer != 0 {
-                break;
-            }
+        while n.is_divisible_u(2) {
             factors.push(Integer::from(2));
             n /= 2;
         }
