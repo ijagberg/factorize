@@ -1,5 +1,5 @@
-use rug::{Assign, Integer};
-use std::str::FromStr;
+use algorithms::{Alg, Factorize};
+use rug::Integer;
 use std::time;
 use structopt::StructOpt;
 
@@ -21,47 +21,14 @@ struct Options {
     alg: Alg,
 }
 
-#[derive(Debug)]
-enum Alg {
-    TrialDivision,
-    BrentsRho,
-}
-
-#[derive(Debug)]
-enum ParseError {
-    UnknownAlg(String),
-}
-
-impl std::error::Error for ParseError {}
-
-impl std::fmt::Display for ParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
-        match self {
-            ParseError::UnknownAlg(alg) => write!(f, "unknown algorithm '{}'", alg),
-        }
-    }
-}
-
-impl FromStr for Alg {
-    type Err = ParseError;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        match &*s.to_uppercase() {
-            "TRIALDIVISION" | "TRIAL DIVISION" | "TRIAL_DIVISION" => Ok(Alg::TrialDivision),
-            "BRENTSRHO" | "BRENTS RHO" | "BRENTS_RHO" | "BRENTS'S RHO" => Ok(Alg::BrentsRho),
-            _ => std::result::Result::Err(ParseError::UnknownAlg(s.into())),
-        }
-    }
-}
-
 fn main() {
     let opts = Options::from_args();
 
     for number in opts.numbers {
         let timer = time::Instant::now();
         let factors = match opts.alg {
-            Alg::TrialDivision => algorithms::trial_division(number.clone()),
-            Alg::BrentsRho => algorithms::brents_rho(number.clone()),
+            Alg::TrialDivision => algorithms::TrialDivision::factor(number.clone()),
+            Alg::BrentsRho => algorithms::BrentsRho::factor(number.clone()),
         };
         println!("{} => {:?}, took {:?}", number, factors, timer.elapsed());
         if opts.assert {
