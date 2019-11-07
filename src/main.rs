@@ -1,4 +1,4 @@
-use rug::{Assign, Integer};
+use rug::Integer;
 use std::str::FromStr;
 use std::time;
 use structopt::StructOpt;

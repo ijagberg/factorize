@@ -1,4 +1,3 @@
-#[allow(unused_imports)]
 use rug::{rand::RandState, Assign, Integer};
 use std::collections::VecDeque;
 
