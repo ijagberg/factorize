@@ -27,13 +27,20 @@ fn main() {
 
     for number in opts.numbers {
         let timer = time::Instant::now();
+        let arg_number = number.clone();
         let mut factors = match opts.alg {
-            Alg::TrialDivision => algorithms::TrialDivision::factor(number.clone()),
-            Alg::BrentsRho => algorithms::BrentsRho::factor(number.clone()),
-            Alg::Fermat => algorithms::Fermat::factor(number.clone()),
+            Alg::TrialDivision => algorithms::TrialDivision::factor(arg_number),
+            Alg::BrentsRho => algorithms::BrentsRho::factor(arg_number),
+            Alg::Fermat => algorithms::Fermat::factor(arg_number),
         };
         factors.sort();
-        println!("{} => {:?}, took {:?}", number, factors, timer.elapsed());
+        println!(
+            r#"{} => {:?}, took {:?} with "{}""#,
+            number,
+            factors,
+            timer.elapsed(),
+            opts.alg
+        );
         if opts.assert {
             assert_eq!(factors.iter().product::<Integer>(), number);
         }

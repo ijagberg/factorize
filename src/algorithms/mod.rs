@@ -1,5 +1,5 @@
 use rug::{Assign, Integer};
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 pub use brents_rho::BrentsRho;
 pub use fermat::Fermat;
@@ -19,6 +19,20 @@ pub enum Alg {
     TrialDivision,
     BrentsRho,
     Fermat,
+}
+
+impl Display for Alg {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Alg::TrialDivision => "trial division",
+                Alg::BrentsRho => "Brent's Rho",
+                Alg::Fermat => "Fermat",
+            }
+        )
+    }
 }
 
 #[derive(Debug)]
