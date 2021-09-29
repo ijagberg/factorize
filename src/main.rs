@@ -5,6 +5,7 @@ use std::time;
 use structopt::StructOpt;
 
 pub mod algorithms;
+mod sieve;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "factorize")]
@@ -43,6 +44,25 @@ fn main() {
         );
         if opts.assert {
             assert_eq!(factors.iter().product::<Integer>(), number);
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sprime() {
+        for n in 1..1000 {
+            let facts = algorithms::TrialDivision::factor(Integer::from(n));
+            if let algorithms::primality::MillerRabinResult::ProbablyPrime =
+                algorithms::primality::miller_rabin(&Integer::from(facts.len()), 40)
+            {
+                // println!("{} has {} factors", n, facts.len());
+            } else if facts.len() > Integer::from(1) {
+                println!("{} has {} factors", n, facts.len());
+            }
         }
     }
 }

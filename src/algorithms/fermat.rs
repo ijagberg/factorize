@@ -3,7 +3,7 @@ use super::Factorize;
 use rug::{Assign, Integer};
 use std::collections::VecDeque;
 
-pub struct Fermat {}
+pub struct Fermat;
 
 impl Fermat {
     fn ceiling_root(number: &Integer) -> Integer {

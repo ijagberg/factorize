@@ -1,7 +1,7 @@
 use crate::algorithms::Factorize;
 use rug::{Assign, Integer};
 
-pub struct TrialDivision {}
+pub struct TrialDivision;
 
 impl Factorize for TrialDivision {
     fn factor(mut number: Integer) -> Vec<Integer> {

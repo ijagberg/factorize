@@ -3,7 +3,7 @@ use super::Factorize;
 use rug::{Assign, Integer};
 use std::collections::VecDeque;
 
-pub struct BrentsRho {}
+pub struct BrentsRho;
 
 impl BrentsRho {
     fn brents_rho_single(number: &Integer, offset: u16) -> Result<Integer, ()> {
