@@ -6,4 +6,4 @@ edition = "2018"
 
 [dependencies]
 structopt = "0.3.3"
-rug = "1.6.0"
+rug = "1.16.0"
