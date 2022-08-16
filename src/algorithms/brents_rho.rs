@@ -1,5 +1,5 @@
 use super::primality;
-use super::Factorize;
+use crate::{gcd, Factorize};
 use rug::{Assign, Integer};
 use std::collections::VecDeque;
 
@@ -25,7 +25,7 @@ impl BrentsRho {
 
             abs_diff_buffer.assign(&x_cycle - &y_cycle);
             abs_diff_buffer.assign(abs_diff_buffer.clone().abs());
-            possible_factor.assign(super::gcd(abs_diff_buffer.clone(), number.clone()));
+            possible_factor.assign(gcd(abs_diff_buffer.clone(), number.clone()));
         }
         if &possible_factor == number {
             Err(())

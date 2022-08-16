@@ -1,5 +1,5 @@
 use super::primality;
-use super::Factorize;
+use crate::Factorize;
 use rug::{Assign, Integer};
 use std::collections::VecDeque;
 

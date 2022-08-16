@@ -1,4 +1,4 @@
-use factorize::algorithms::Factorize;
+use factorize::{Factorize, TrialDivision, Fermat, BrentsRho};
 use rug::Integer;
 use std::fmt::Display;
 use std::str::FromStr;
@@ -77,9 +77,9 @@ fn main() {
         let timer = time::Instant::now();
         let arg_number = number.clone();
         let mut factors = match opts.alg {
-            Alg::TrialDivision => factorize::algorithms::TrialDivision::factor(arg_number),
-            Alg::BrentsRho => factorize::algorithms::BrentsRho::factor(arg_number),
-            Alg::Fermat => factorize::algorithms::Fermat::factor(arg_number),
+            Alg::TrialDivision => TrialDivision::factor(arg_number),
+            Alg::BrentsRho => BrentsRho::factor(arg_number),
+            Alg::Fermat => Fermat::factor(arg_number),
         };
         factors.sort();
         println!(

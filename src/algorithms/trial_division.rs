@@ -1,4 +1,4 @@
-use crate::algorithms::Factorize;
+use crate::Factorize;
 use rug::{Assign, Integer};
 
 pub struct TrialDivision;
