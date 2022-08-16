@@ -1,11 +1,9 @@
-use algorithms::Alg;
-use algorithms::Factorize;
 use rug::Integer;
 use std::time;
 use structopt::StructOpt;
-
-pub mod algorithms;
-mod sieve;
+use std::fmt::Display;
+use std::str::FromStr;
+use factorize::algorithms::Factorize;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "factorize")]
@@ -23,6 +21,56 @@ struct Options {
     alg: Alg,
 }
 
+#[derive(Debug)]
+pub enum Alg {
+    TrialDivision,
+    BrentsRho,
+    Fermat,
+}
+
+impl Display for Alg {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Alg::TrialDivision => "trial division",
+                Alg::BrentsRho => "Brent's Rho",
+                Alg::Fermat => "Fermat",
+            }
+        )
+    }
+}
+
+#[derive(Debug)]
+pub enum ParseAlgError {
+    UnknownAlg(String),
+}
+
+impl std::error::Error for ParseAlgError {}
+
+impl std::fmt::Display for ParseAlgError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+        match self {
+            ParseAlgError::UnknownAlg(alg) => write!(f, "unknown algorithm '{}'", alg),
+        }
+    }
+}
+
+impl FromStr for Alg {
+    type Err = ParseAlgError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match &*s.to_uppercase() {
+            "TRIALDIVISION" | "TRIAL DIVISION" | "TRIAL_DIVISION" => Ok(Alg::TrialDivision),
+            "BRENTSRHO" | "BRENTS RHO" | "BRENTS_RHO" | "BRENTS'S RHO" => Ok(Alg::BrentsRho),
+            "FERMAT" | "FERMATS" | "FERMAT'S" => Ok(Alg::Fermat),
+            _ => Result::Err(ParseAlgError::UnknownAlg(s.into())),
+        }
+    }
+}
+
+
 fn main() {
     let opts = Options::from_args();
 
@@ -30,9 +78,9 @@ fn main() {
         let timer = time::Instant::now();
         let arg_number = number.clone();
         let mut factors = match opts.alg {
-            Alg::TrialDivision => algorithms::TrialDivision::factor(arg_number),
-            Alg::BrentsRho => algorithms::BrentsRho::factor(arg_number),
-            Alg::Fermat => algorithms::Fermat::factor(arg_number),
+            Alg::TrialDivision => factorize::algorithms::TrialDivision::factor(arg_number),
+            Alg::BrentsRho => factorize::algorithms::BrentsRho::factor(arg_number),
+            Alg::Fermat => factorize::algorithms::Fermat::factor(arg_number),
         };
         factors.sort();
         println!(

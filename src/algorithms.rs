@@ -14,55 +14,6 @@ pub trait Factorize {
     fn factor(number: Integer) -> Vec<Integer>;
 }
 
-#[derive(Debug)]
-pub enum Alg {
-    TrialDivision,
-    BrentsRho,
-    Fermat,
-}
-
-impl Display for Alg {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Alg::TrialDivision => "trial division",
-                Alg::BrentsRho => "Brent's Rho",
-                Alg::Fermat => "Fermat",
-            }
-        )
-    }
-}
-
-#[derive(Debug)]
-pub enum ParseAlgError {
-    UnknownAlg(String),
-}
-
-impl std::error::Error for ParseAlgError {}
-
-impl std::fmt::Display for ParseAlgError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
-        match self {
-            ParseAlgError::UnknownAlg(alg) => write!(f, "unknown algorithm '{}'", alg),
-        }
-    }
-}
-
-impl FromStr for Alg {
-    type Err = ParseAlgError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match &*s.to_uppercase() {
-            "TRIALDIVISION" | "TRIAL DIVISION" | "TRIAL_DIVISION" => Ok(Alg::TrialDivision),
-            "BRENTSRHO" | "BRENTS RHO" | "BRENTS_RHO" | "BRENTS'S RHO" => Ok(Alg::BrentsRho),
-            "FERMAT" | "FERMATS" | "FERMAT'S" => Ok(Alg::Fermat),
-            _ => Result::Err(ParseAlgError::UnknownAlg(s.into())),
-        }
-    }
-}
-
 fn gcd(mut a: Integer, mut b: Integer) -> Integer {
     let mut remainder_buffer = Integer::new();
 
