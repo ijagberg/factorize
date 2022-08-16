@@ -1,9 +1,9 @@
+use factorize::algorithms::Factorize;
 use rug::Integer;
-use std::time;
-use structopt::StructOpt;
 use std::fmt::Display;
 use std::str::FromStr;
-use factorize::algorithms::Factorize;
+use std::time;
+use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "factorize")]
@@ -69,7 +69,6 @@ impl FromStr for Alg {
         }
     }
 }
-
 
 fn main() {
     let opts = Options::from_args();
