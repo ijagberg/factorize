@@ -3,6 +3,16 @@ use rug::{Assign, Integer};
 
 pub struct TrialDivision;
 
+impl TrialDivision {
+    pub fn factor_generic<T>(num: T) -> Vec<Integer>
+    where
+        Integer: From<T>,
+    {
+        let int = Integer::from(num);
+        Self::factor(int)
+    }
+}
+
 impl Factorize for TrialDivision {
     fn factor(mut number: Integer) -> Vec<Integer> {
         use std::iter;

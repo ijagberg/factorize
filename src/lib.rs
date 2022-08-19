@@ -2,6 +2,7 @@ use rug::{Assign, Integer};
 
 pub use algorithms::brents_rho::BrentsRho;
 pub use algorithms::fermat::Fermat;
+pub use algorithms::primality;
 pub use algorithms::trial_division::TrialDivision;
 
 pub mod algorithms;

@@ -6,6 +6,14 @@ use std::collections::VecDeque;
 pub struct BrentsRho;
 
 impl BrentsRho {
+    pub fn factor_generic<T>(num: T) -> Vec<Integer>
+    where
+        Integer: From<T>,
+    {
+        let num = Integer::from(num);
+        Self::factor(num)
+    }
+
     fn brents_rho_single(number: &Integer, offset: u16) -> Result<Integer, ()> {
         let mut x_cycle = Integer::from(2);
         let mut y_cycle = Integer::from(2);

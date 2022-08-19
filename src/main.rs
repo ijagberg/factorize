@@ -1,4 +1,4 @@
-use factorize::{Factorize, TrialDivision, Fermat, BrentsRho};
+use factorize::{BrentsRho, Factorize, Fermat, TrialDivision};
 use rug::Integer;
 use std::fmt::Display;
 use std::str::FromStr;
@@ -98,13 +98,14 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use factorize::*;
 
     #[test]
     fn sprime() {
         for n in 1..1000 {
-            let facts = algorithms::TrialDivision::factor(Integer::from(n));
-            if let algorithms::primality::MillerRabinResult::ProbablyPrime =
-                algorithms::primality::miller_rabin(&Integer::from(facts.len()), 40)
+            let facts = TrialDivision::factor(Integer::from(n));
+            if let primality::MillerRabinResult::ProbablyPrime =
+                primality::miller_rabin(&Integer::from(facts.len()), 40)
             {
                 // println!("{} has {} factors", n, facts.len());
             } else if facts.len() > Integer::from(1) {
